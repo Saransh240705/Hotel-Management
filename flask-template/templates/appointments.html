@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Appointment Management</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAppointmentModal">
+        Schedule New Appointment
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.id }}</td>
+                    <td>{{ appointment.patient.name }}</td>
+                    <td>{{ appointment.doctor.name }}</td>
+                    <td>{{ appointment.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if appointment.status == 'completed' 
+                            else 'danger' if appointment.status == 'cancelled' 
+                            else 'warning' }}">
+                            {{ appointment.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="updateStatus({{ appointment.id }}, 'completed')">Complete</button>
+                        <button class="btn btn-sm btn-danger" onclick="updateStatus({{ appointment.id }}, 'cancelled')">Cancel</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal fade" id="addAppointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Schedule New Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_appointment') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="patient_id" class="form-label">Patient</label>
+                        <select class="form-control" id="patient_id" name="patient_id" required>
+                            <option value="">Select Patient</option>
+                            {% for patient in patients %}
+                            <option value="{{ patient.id }}">{{ patient.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctor_id" class="form-label">Doctor</label>
+                        <select class="form-control" id="doctor_id" name="doctor_id" required>
+                            <option value="">Select Doctor</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.specialization }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="time" name="time" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateStatus(id, status) {
+    if (confirm('Are you sure you want to mark this appointment as ' + status + '?')) {
+        fetch(`/appointment/${id}/update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: status })
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dashboard</h2>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Patients</h5>
+                <p class="card-text display-4">{{ total_patients }}</p>
+                <a href="{{ url_for('patients') }}" class="btn btn-light">Manage Patients</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Today's Appointments</h5>
+                <p class="card-text display-4">{{ today_appointments }}</p>
+                <a href="{{ url_for('appointments') }}" class="btn btn-light">View Appointments</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Pending Bills</h5>
+                <p class="card-text display-4">{{ pending_bills }}</p>
+                <a href="{{ url_for('billing') }}" class="btn btn-light">Manage Bills</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Appointments</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in recent_appointments %}
+                        <tr>
+                            <td>{{ appointment.patient.name }}</td>
+                            <td>{{ appointment.doctor.name }}</td>
+                            <td>{{ appointment.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ appointment.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Bills</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in recent_bills %}
+                        <tr>
+                            <td>{{ bill.patient.name }}</td>
+                            <td>${{ "%.2f"|format(bill.amount) }}</td>
+                            <td>{{ bill.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ bill.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
